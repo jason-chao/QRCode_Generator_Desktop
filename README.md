@@ -20,9 +20,11 @@ A clean cross-platform desktop application for generating QR codes, built with P
 
 - Python 3.10+
 - Dependencies listed in `requirements.txt`:
-  - `qrcode[pil]` >= 8.0
-  - `Pillow` >= 10.0
-  - `pyinstaller` >= 6.0 (build only)
+  - `qrcode[pil]` >= 8.2
+  - `Pillow` >= 12.1.1
+  - `pyinstaller` >= 6.19.0 (build only)
+- Test dependencies listed in `requirements-dev.txt`:
+  - `pytest` >= 8.0
 
 ## Running from source
 
@@ -37,6 +39,18 @@ pip install -r requirements.txt
 # Run the app
 python qrcode_gen.py
 ```
+
+## Running the tests
+
+```bash
+# Install dev dependencies (includes pytest)
+pip install -r requirements-dev.txt
+
+# Run all tests
+pytest tests/
+```
+
+Tests cover all pure functions: `ec_label_for`, `is_valid_hex`, `normalise_colour`, `generate_qr_image`, and `load_config`. The Tkinter UI is not tested as it requires a display.
 
 ## Building a standalone executable
 
@@ -78,10 +92,13 @@ border           = 2   # quiet-zone width in modules
 
 ```
 qrcode-gen/
-├── qrcode_gen.py      # Application source
-├── qrcode_gen.spec    # PyInstaller spec (cross-platform)
-├── config.ini         # Default settings
-├── requirements.txt   # Python dependencies
+├── qrcode_gen.py          # Application source
+├── qrcode_gen.spec        # PyInstaller spec (cross-platform)
+├── config.ini             # Default settings
+├── requirements.txt       # Runtime + build dependencies
+├── requirements-dev.txt   # Dev/test dependencies
+├── tests/
+│   └── test_qrcode_gen.py # pytest test suite
 ├── build_linux.sh
 ├── build_macos.sh
 └── build_windows.bat
