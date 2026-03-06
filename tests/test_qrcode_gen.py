@@ -163,7 +163,7 @@ class TestLoadConfig:
         cfg = load_config()
         assert cfg["url"] == "https://example.com"
         assert cfg["foreground"] == "black"
-        assert cfg["background"] == "transparent"
+        assert cfg["background"] == "white"
         assert cfg["error_correction"] == "M"
         assert cfg["box_size"] == "10"
         assert cfg["border"] == "4"

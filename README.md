@@ -104,7 +104,7 @@ Default settings are stored in `config.ini` next to the executable. Edit it to c
 [defaults]
 url              = https://example.com
 foreground       = black
-background       = transparent
+background       = white
 error_correction = L   # L, M, Q, or H
 box_size         = 10  # pixels per QR module (1–20)
 border           = 2   # quiet-zone width in modules

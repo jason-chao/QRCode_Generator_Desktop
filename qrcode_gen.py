@@ -58,7 +58,7 @@ def load_config() -> dict:
     return {
         "url":              d.get("url",              "https://example.com"),
         "foreground":       d.get("foreground",       "black"),
-        "background":       d.get("background",       "transparent"),
+        "background":       d.get("background",       "white"),
         "error_correction": d.get("error_correction", "M"),
         "box_size":         d.get("box_size",         "10"),
         "border":           d.get("border",           "4"),
