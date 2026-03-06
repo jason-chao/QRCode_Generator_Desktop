@@ -17,7 +17,9 @@ a = Analysis(
     ["qrcode_gen.py"],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ("assets/icon.png", "assets"),   # window icon (bundled inside the exe)
+    ],
     hiddenimports=[
         "PIL._tkinter_finder",
         "qrcode.image.pil",
@@ -52,7 +54,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    # icon="assets/icon.ico",   # Uncomment and supply icon file if desired
+    icon="assets/icon.ico",
 )
 
 # macOS: also produce a .app bundle (requires a COLLECT pass)
@@ -70,7 +72,7 @@ if sys.platform == "darwin":
     app = BUNDLE(
         coll,
         name="QRCodeGen.app",
-        # icon="assets/icon.icns",  # Uncomment and supply .icns if desired
+        icon="assets/icon.icns",
         bundle_identifier="com.example.qrcodegen",
         info_plist={
             "NSHighResolutionCapable": True,

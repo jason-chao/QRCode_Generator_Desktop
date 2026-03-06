@@ -26,6 +26,24 @@ A clean cross-platform desktop application for generating QR codes, built with P
 - Test dependencies listed in `requirements-dev.txt`:
   - `pytest` >= 8.0
 
+## Generating the app icon
+
+The icon is generated programmatically from `generate_icon.py` using Pillow:
+
+```bash
+python generate_icon.py
+```
+
+This produces:
+
+| File | Used for |
+|---|---|
+| `assets/icon.png` | Tkinter window title-bar icon (all platforms) |
+| `assets/icon.ico` | Windows taskbar / exe icon (multi-resolution: 16/32/48/256 px) |
+| `assets/icon.icns` | macOS dock / `.app` bundle icon (macOS only; requires `iconutil`) |
+
+Run the script once before building. The icon files are committed to the repository so this step is only needed if you want to regenerate or customise the icon.
+
 ## Running from source
 
 ```bash
@@ -98,9 +116,14 @@ border           = 2   # quiet-zone width in modules
 qrcode-gen/
 ├── qrcode_gen.py          # Application source
 ├── qrcode_gen.spec        # PyInstaller spec (cross-platform)
+├── generate_icon.py       # Generates assets/icon.{png,ico,icns}
 ├── config.ini             # Default settings
 ├── requirements.txt       # Runtime + build dependencies
 ├── requirements-dev.txt   # Dev/test dependencies
+├── assets/
+│   ├── icon.png           # 512×512 source PNG
+│   ├── icon.ico           # Windows multi-resolution icon
+│   └── icon.icns          # macOS icon bundle (macOS only)
 ├── tests/
 │   └── test_qrcode_gen.py # pytest test suite
 ├── build_linux.sh

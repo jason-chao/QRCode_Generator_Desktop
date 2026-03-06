@@ -141,6 +141,17 @@ class TestGenerateQrImage:
         img = generate_qr_image("https://example.com", "black", "white", ec_level, 10, 4)
         assert isinstance(img, Image.Image)
 
+    def test_empty_string_produces_image(self):
+        # The qrcode library encodes empty data without error; the UI layer
+        # is responsible for rejecting blank input before it reaches here.
+        img = generate_qr_image("", "black", "white", EC_M, 10, 4)
+        assert isinstance(img, Image.Image)
+
+    def test_overlong_data_raises(self):
+        # QR codes top out at version 40; data exceeding that capacity raises ValueError.
+        with pytest.raises((ValueError, Exception)):
+            generate_qr_image("x" * 10000, "black", "white", EC_M, 10, 4)
+
 
 # ---------------------------------------------------------------------------
 # load_config

@@ -14,12 +14,15 @@ from PIL import Image, ImageTk
 # Helpers
 # ---------------------------------------------------------------------------
 
-# In a PyInstaller onefile build sys.executable is the single bundled exe;
-# in a onedir build or plain source run, fall back to the script's directory.
+# _BASE_DIR  — directory of the exe / script (user-editable files live here)
+# _RES_DIR   — directory where bundled read-only assets are extracted
+#              (sys._MEIPASS in a onefile build, same as _BASE_DIR otherwise)
 if getattr(sys, "frozen", False):
     _BASE_DIR = os.path.dirname(sys.executable)
+    _RES_DIR  = sys._MEIPASS
 else:
     _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    _RES_DIR  = _BASE_DIR
 CONFIG_FILE = os.path.join(_BASE_DIR, "config.ini")
 
 NAMED_COLOURS = [
@@ -210,7 +213,9 @@ class QRCodeApp(tk.Tk):
         self.resizable(True, True)
         self._qr_image: Image.Image | None = None
         self._tk_image: ImageTk.PhotoImage | None = None
+        self._app_icon: ImageTk.PhotoImage | None = None
 
+        self._set_window_icon()
         cfg = load_config()
         self._build_ui(cfg)
         self._centre_window()
@@ -305,6 +310,16 @@ class QRCodeApp(tk.Tk):
     @staticmethod
     def _validate_int(value: str) -> bool:
         return value == "" or value.isdigit()
+
+    def _set_window_icon(self):
+        icon_path = os.path.join(_RES_DIR, "assets", "icon.png")
+        if os.path.isfile(icon_path):
+            try:
+                img = Image.open(icon_path)
+                self._app_icon = ImageTk.PhotoImage(img)
+                self.iconphoto(True, self._app_icon)
+            except Exception:
+                pass
 
     def _centre_window(self):
         self.update_idletasks()
