@@ -161,7 +161,7 @@ class TestLoadConfig:
     def test_defaults_when_file_missing(self, tmp_path, monkeypatch):
         monkeypatch.setattr("qrcode_gen.CONFIG_FILE", str(tmp_path / "no_such.ini"))
         cfg = load_config()
-        assert cfg["url"] == "https://example.com"
+        assert cfg["url"] == "https://github.com/jason-chao/QRCode_Generator_Desktop"
         assert cfg["foreground"] == "black"
         assert cfg["background"] == "white"
         assert cfg["error_correction"] == "M"

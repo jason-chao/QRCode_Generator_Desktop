@@ -102,7 +102,7 @@ Default settings are stored in `config.ini` next to the executable. Edit it to c
 
 ```ini
 [defaults]
-url              = https://example.com
+url              = https://github.com/jason-chao/QRCode_Generator_Desktop
 foreground       = black
 background       = white
 error_correction = L   # L, M, Q, or H

@@ -56,7 +56,7 @@ def load_config() -> dict:
     cfg.read(CONFIG_FILE)
     d = cfg["defaults"] if "defaults" in cfg else {}
     return {
-        "url":              d.get("url",              "https://example.com"),
+        "url":              d.get("url",              "https://github.com/jason-chao/QRCode_Generator_Desktop"),
         "foreground":       d.get("foreground",       "black"),
         "background":       d.get("background",       "white"),
         "error_correction": d.get("error_correction", "M"),
@@ -101,8 +101,9 @@ def generate_qr_image(url: str, fg: str, bg: str | None,
     qr.make(fit=True)
 
     if bg is None:
-        # Transparent background requires RGBA
-        img = qr.make_image(fill_color=fg, back_color=(0, 0, 0, 0)).convert("RGBA")
+        # back_color="transparent" is the library's own trigger for RGBA mode;
+        # passing (0, 0, 0, 0) instead hits the RGB branch and loses the alpha.
+        img = qr.make_image(fill_color=fg, back_color="transparent").convert("RGBA")
     else:
         img = qr.make_image(fill_color=fg, back_color=bg).convert("RGBA")
 
