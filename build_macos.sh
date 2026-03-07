@@ -9,7 +9,7 @@ cd "$SCRIPT_DIR"
 
 VENV_DIR=".venv"
 
-echo "=== QR Code Generator — macOS build ==="
+echo "=== Good QR Code Generator — macOS build ==="
 
 # 1. Create / reuse virtual environment
 if [ ! -d "$VENV_DIR" ]; then
@@ -30,10 +30,10 @@ pyinstaller qrcode_gen.spec --clean --noconfirm
 
 # 4. Place config.ini next to the executable so users can edit defaults
 cp config.ini dist/
-cp config.ini "dist/QRCodeGen.app/Contents/MacOS/"
+cp config.ini "dist/GoodQRCodeGen.app/Contents/MacOS/"
 
 echo ""
 echo "Build complete."
-echo "  Single exe : dist/QRCodeGen"
-echo "  App bundle : dist/QRCodeGen.app"
+echo "  Single exe : dist/GoodQRCodeGen"
+echo "  App bundle : dist/GoodQRCodeGen.app"
 echo "  Config     : dist/config.ini  (edit to change defaults)"

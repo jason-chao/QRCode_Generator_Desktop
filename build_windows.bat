@@ -4,7 +4,7 @@ REM Run from the project root directory.
 
 setlocal EnableDelayedExpansion
 
-echo === QR Code Generator — Windows build ===
+echo === Good QR Code Generator — Windows build ===
 
 set "SCRIPT_DIR=%~dp0"
 cd /d "%SCRIPT_DIR%"
@@ -33,5 +33,5 @@ copy config.ini dist\
 
 echo.
 echo Build complete.
-echo   Executable : dist\QRCodeGen.exe
+echo   Executable : dist\GoodQRCodeGen.exe
 echo   Config     : dist\config.ini  (edit to change defaults)

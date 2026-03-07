@@ -210,7 +210,7 @@ class ColourSelector(tk.Frame):
 class QRCodeApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("QR Code Generator")
+        self.title("Good QR Code Generator")
         self.resizable(True, True)
         self._qr_image: Image.Image | None = None
         self._tk_image: ImageTk.PhotoImage | None = None

@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 #
-# PyInstaller spec file for QR Code Generator
+# PyInstaller spec file for Good QR Code Generator
 #
 # Produces a single-file executable on all platforms.
 # config.ini is NOT bundled inside the exe; distribute it alongside the
@@ -45,7 +45,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     exclude_binaries=False,     # onefile: embed everything into the exe
-    name="QRCodeGen",
+    name="GoodQRCodeGen",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -68,11 +68,11 @@ if sys.platform == "darwin":
         strip=False,
         upx=True,
         upx_exclude=[],
-        name="QRCodeGen",
+        name="GoodQRCodeGen",
     )
     app = BUNDLE(
         coll,
-        name="QRCodeGen.app",
+        name="GoodQRCodeGen.app",
         icon="assets/icon.icns",
         bundle_identifier="com.example.qrcodegen",
         info_plist={

@@ -9,7 +9,7 @@ cd "$SCRIPT_DIR"
 
 VENV_DIR=".venv"
 
-echo "=== QR Code Generator — Linux build ==="
+echo "=== Good QR Code Generator — Linux build ==="
 
 # 1. Create / reuse virtual environment
 if [ ! -d "$VENV_DIR" ]; then
@@ -33,5 +33,5 @@ cp config.ini dist/
 
 echo ""
 echo "Build complete."
-echo "  Executable : dist/QRCodeGen"
+echo "  Executable : dist/GoodQRCodeGen"
 echo "  Config     : dist/config.ini  (edit to change defaults)"

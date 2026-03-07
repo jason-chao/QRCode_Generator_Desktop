@@ -1,22 +1,26 @@
-# QR Code Generator
+# 📷 Good QR Code Generator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A clean cross-platform desktop application for generating QR codes, built with Python and Tkinter.
+A desktop app that generates standard QR codes — locally, privately, and without fuss. Available on Windows, macOS, and Linux.
 
-## Features
+Most online QR code tools make you sign up, show you ads, log what you encode, or wrap your code in a redirect that breaks the day they shut down. **Good QR Code Generator** runs entirely on your computer. No internet connection, no account, no tracking — just a QR code that works.
 
-- Encode any URL or text into a QR code
-- Customisable foreground and background colours (named colours, hex codes, or transparent)
-- Visual colour picker with live swatch preview
-- Adjustable error correction level (L / M / Q / H)
-- Configurable box size (1–20 px) and quiet-zone border width
-- Live preview with checkerboard display for transparent backgrounds
-- Save as PNG, JPEG, BMP, GIF, TIFF, WebP, or ICO
-- Persistent defaults via `config.ini`
-- Packages into a standalone executable (no Python required at runtime)
+![Screenshot on Windows 11](assets/screenshot_win11.png)
 
-## Requirements
+## ✨ What you can do with it
+
+- 🔲 Encode any URL or text into a standard, scanner-compatible QR code
+- 🎨 Choose foreground and background colours (named colours, hex codes, or transparent background)
+- 🖱️ Visual colour picker with live swatch preview
+- 🛡️ Set error correction level (L / M / Q / H) — higher levels let the QR code survive damage or partial obscuring
+- 📐 Adjust module size and quiet-zone border to suit print or screen use
+- 👁️ Preview the result before saving, with a checkerboard pattern for transparent backgrounds
+- 💾 Save as PNG, JPEG, BMP, GIF, TIFF, WebP, or ICO
+- ⚙️ Tweak default settings once in `config.ini` and never think about them again
+- 📦 Build a standalone `.exe` / `.app` / binary — no Python installation needed on the target machine
+
+## 🖥️ Requirements
 
 - Python 3.10+
 - Dependencies listed in `requirements.txt`:
@@ -26,7 +30,7 @@ A clean cross-platform desktop application for generating QR codes, built with P
 - Test dependencies listed in `requirements-dev.txt`:
   - `pytest` >= 8.0
 
-## Generating the app icon
+## 🎨 Generating the app icon
 
 The icon is generated programmatically from `generate_icon.py` using Pillow:
 
@@ -44,7 +48,7 @@ This produces:
 
 Run the script once before building. The icon files are committed to the repository so this step is only needed if you want to regenerate or customise the icon.
 
-## Running from source
+## 🚀 Running from source
 
 ```bash
 # Create and activate a virtual environment
@@ -58,7 +62,7 @@ pip install -r requirements.txt
 python qrcode_gen.py
 ```
 
-## Running the tests
+## 🧪 Running the tests
 
 ```bash
 # Install dev dependencies (includes pytest)
@@ -70,33 +74,33 @@ pytest tests/
 
 Tests cover all pure functions: `ec_label_for`, `is_valid_hex`, `normalise_colour`, `generate_qr_image`, and `load_config`. The Tkinter UI is not tested as it requires a display.
 
-## Building a standalone executable
+## 📦 Building a standalone executable
 
 Build scripts handle virtual environment creation, dependency installation, and PyInstaller packaging automatically.
 
-**Linux**
+**🐧 Linux**
 ```bash
 bash build_linux.sh
-# Output: dist/QRCodeGen   (single file)
+# Output: dist/GoodQRCodeGen   (single file)
 #         dist/config.ini
 ```
 
-**macOS**
+**🍎 macOS**
 ```bash
 bash build_macos.sh
-# Output: dist/QRCodeGen       (single-file binary)
-#         dist/QRCodeGen.app   (.app bundle)
+# Output: dist/GoodQRCodeGen       (single-file binary)
+#         dist/GoodQRCodeGen.app   (.app bundle)
 #         dist/config.ini
 ```
 
-**Windows**
+**🪟 Windows**
 ```bat
 build_windows.bat
-REM Output: dist\QRCodeGen.exe  (single file)
+REM Output: dist\GoodQRCodeGen.exe  (single file)
 REM         dist\config.ini
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 Default settings are stored in `config.ini` next to the executable. Edit it to change the startup defaults:
 
@@ -110,7 +114,7 @@ box_size         = 10  # pixels per QR module (1–20)
 border           = 2   # quiet-zone width in modules
 ```
 
-## Project structure
+## 📁 Project structure
 
 ```
 qrcode-gen/
