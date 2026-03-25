@@ -470,22 +470,35 @@ class QRCodeApp(tk.Tk):
 
         if sys.platform == "win32":
             import ctypes
-            
+            import ctypes.wintypes
+
             output = io.BytesIO()
             img.save(output, format="BMP")
             data = output.getvalue()
             dib_data = data[14:]
-            
+
             CF_DIB = 8
             GMEM_MOVEABLE = 0x0002
-            
+
             kernel32 = ctypes.windll.kernel32
             user32 = ctypes.windll.user32
-            
+
+            # Explicit types are required on 64-bit Windows; without them ctypes
+            # truncates 64-bit HANDLE/LPVOID returns to 32 bits, causing GlobalLock
+            # to receive a corrupt handle and return NULL.
+            kernel32.GlobalAlloc.restype = ctypes.c_void_p
+            kernel32.GlobalAlloc.argtypes = [ctypes.wintypes.UINT, ctypes.c_size_t]
+            kernel32.GlobalLock.restype = ctypes.c_void_p
+            kernel32.GlobalLock.argtypes = [ctypes.c_void_p]
+            kernel32.GlobalUnlock.restype = ctypes.wintypes.BOOL
+            kernel32.GlobalUnlock.argtypes = [ctypes.c_void_p]
+            kernel32.GlobalFree.restype = ctypes.c_void_p
+            kernel32.GlobalFree.argtypes = [ctypes.c_void_p]
+
             hGlobalMem = kernel32.GlobalAlloc(GMEM_MOVEABLE, len(dib_data))
             if not hGlobalMem:
                 raise Exception("Failed to allocate global memory.")
-                
+
             lpGlobalMem = kernel32.GlobalLock(hGlobalMem)
             if not lpGlobalMem:
                 kernel32.GlobalFree(hGlobalMem)
