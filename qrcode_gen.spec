@@ -44,12 +44,12 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    exclude_binaries=False,     # onefile: embed everything into the exe
+    exclude_binaries=False,                     # onefile: embed everything into the exe
     name="GoodQRCodeGen",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    upx=False,
     console=False,              # No console window on Windows / macOS
     disable_windowed_traceback=False,
     target_arch=None,
@@ -58,20 +58,10 @@ exe = EXE(
     icon="assets/icon.ico",
 )
 
-# macOS: also produce a .app bundle (requires a COLLECT pass)
+# macOS: wrap the onefile exe in a .app bundle
 if sys.platform == "darwin":
-    coll = COLLECT(
-        exe,
-        a.binaries,
-        a.zipfiles,
-        a.datas,
-        strip=False,
-        upx=True,
-        upx_exclude=[],
-        name="GoodQRCodeGen",
-    )
     app = BUNDLE(
-        coll,
+        exe,
         name="GoodQRCodeGen.app",
         icon="assets/icon.icns",
         bundle_identifier="com.example.qrcodegen",

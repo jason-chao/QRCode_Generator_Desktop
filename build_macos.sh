@@ -21,19 +21,33 @@ source "$VENV_DIR/bin/activate"
 
 # 2. Install / upgrade dependencies
 echo "Installing dependencies..."
-pip install --upgrade pip -q
-pip install -r requirements.txt -q
+pip install --upgrade pip
+pip install -r requirements.txt
 
-# 3. Build with PyInstaller (produces a single-file exe and a .app bundle)
+# 3. Generate icon.icns from icon.png (required for the .app bundle)
+if [ ! -f assets/icon.icns ]; then
+    echo "Generating assets/icon.icns..."
+    ICONSET=$(mktemp -d)
+    for size in 16 32 64 128 256 512; do
+        sips -z $size $size assets/icon.png --out "$ICONSET/icon_${size}x${size}.png"
+        double=$((size * 2))
+        sips -z $double $double assets/icon.png --out "$ICONSET/icon_${size}x${size}@2x.png"
+    done
+    # iconutil expects a directory named *.iconset
+    ICONSET_NAMED="$(dirname "$ICONSET")/icon.iconset"
+    mv "$ICONSET" "$ICONSET_NAMED"
+    iconutil -c icns "$ICONSET_NAMED" -o assets/icon.icns
+    rm -rf "$ICONSET_NAMED"
+fi
+
+# 4. Build with PyInstaller (produces a .app bundle)
 echo "Running PyInstaller..."
 pyinstaller qrcode_gen.spec --clean --noconfirm
 
-# 4. Place config.ini next to the executable so users can edit defaults
-cp config.ini dist/
+# 5. Place config.ini inside the .app so users can edit defaults
 cp config.ini "dist/GoodQRCodeGen.app/Contents/MacOS/"
 
 echo ""
 echo "Build complete."
-echo "  Single exe : dist/GoodQRCodeGen"
 echo "  App bundle : dist/GoodQRCodeGen.app"
-echo "  Config     : dist/config.ini  (edit to change defaults)"
+echo "  Config     : dist/GoodQRCodeGen.app/Contents/MacOS/config.ini  (edit to change defaults)"
