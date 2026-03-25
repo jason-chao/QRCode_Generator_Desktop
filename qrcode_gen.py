@@ -26,8 +26,20 @@ else:
 CONFIG_FILE = os.path.join(_BASE_DIR, "config.ini")
 
 NAMED_COLOURS = [
-    "black", "white", "red", "green", "blue", "yellow",
-    "cyan", "magenta", "orange", "purple", "gray", "transparent",
+    # Essentials — transparent lives here so it is one step below black/white
+    "black", "white", "transparent",
+    # Neutrals
+    "dimgray", "gray", "silver",
+    # Blues
+    "navy", "royalblue", "skyblue",
+    # Greens
+    "teal", "seagreen", "limegreen",
+    # Purples / pinks
+    "indigo", "purple", "hotpink",
+    # Reds / warm
+    "crimson", "tomato", "orange", "gold",
+    # Pure primaries / secondaries
+    "red", "green", "blue", "yellow", "cyan", "magenta",
 ]
 
 ERROR_CORRECTION_OPTIONS = {
