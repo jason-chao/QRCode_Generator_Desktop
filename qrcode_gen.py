@@ -460,64 +460,123 @@ class QRCodeApp(tk.Tk):
 
     @staticmethod
     def _copy_image_to_clipboard(img: Image.Image):
-        # Flatten image to avoid transparency issues on some platforms
-        if img.mode == "RGBA":
-            bg = Image.new("RGB", img.size, (255, 255, 255))
-            bg.paste(img, mask=img.split()[3])
-            img = bg
-        elif img.mode != "RGB":
-            img = img.convert("RGB")
-
         if sys.platform == "win32":
             import ctypes
             import ctypes.wintypes
+            import struct
 
-            output = io.BytesIO()
-            img.save(output, format="BMP")
-            data = output.getvalue()
-            dib_data = data[14:]
+            img_rgba = img.convert("RGBA")
+            width, height = img_rgba.size
 
-            CF_DIB = 8
+            # --- CF_DIBV5 (format 17): 32-bit BGRA with alpha masks ---
+            # Windows DIB pixels are stored in BGRA byte order.
+            r, g, b, a = img_rgba.split()
+            pixel_data = Image.merge("RGBA", (b, g, r, a)).tobytes()
+
+            BI_BITFIELDS  = 3
+            LCS_sRGB      = 0x73524742
+            LCS_GM_IMAGES = 4
+
+            dibv5_header = struct.pack(
+                "<IiiHHIIiiIIIIIII36sIIIIIII",
+                124,              # bV5Size
+                width,            # bV5Width
+                -height,          # bV5Height  (negative = top-down)
+                1,                # bV5Planes
+                32,               # bV5BitCount
+                BI_BITFIELDS,     # bV5Compression
+                len(pixel_data),  # bV5SizeImage
+                0, 0,             # bV5X/YPelsPerMeter
+                0, 0,             # bV5ClrUsed / bV5ClrImportant
+                0x00FF0000,       # bV5RedMask
+                0x0000FF00,       # bV5GreenMask
+                0x000000FF,       # bV5BlueMask
+                0xFF000000,       # bV5AlphaMask
+                LCS_sRGB,         # bV5CSType
+                b"\x00" * 36,     # bV5Endpoints (CIEXYZTRIPLE, unused)
+                0, 0, 0,          # bV5GammaRed/Green/Blue
+                LCS_GM_IMAGES,    # bV5Intent
+                0, 0, 0,          # bV5ProfileData/Size/Reserved
+            )
+            dibv5_data = dibv5_header + pixel_data
+
+            # --- CF_DIB (format 8): RGB with white background (universal fallback) ---
+            flat = Image.new("RGB", img_rgba.size, (255, 255, 255))
+            flat.paste(img_rgba, mask=img_rgba.split()[3])
+            dib_buf = io.BytesIO()
+            flat.save(dib_buf, format="BMP")
+            dib_data = dib_buf.getvalue()[14:]  # strip 14-byte BITMAPFILEHEADER
+
+            # --- "PNG" registered format: raw PNG bytes (Chrome, GIMP, Inkscape…) ---
+            png_buf = io.BytesIO()
+            img_rgba.save(png_buf, format="PNG")
+            png_data = png_buf.getvalue()
+
+            CF_DIB    = 8
+            CF_DIBV5  = 17
             GMEM_MOVEABLE = 0x0002
 
             kernel32 = ctypes.windll.kernel32
-            user32 = ctypes.windll.user32
+            user32   = ctypes.windll.user32
 
             # Explicit types are required on 64-bit Windows; without them ctypes
             # truncates 64-bit HANDLE/LPVOID returns to 32 bits, causing GlobalLock
             # to receive a corrupt handle and return NULL.
-            kernel32.GlobalAlloc.restype = ctypes.c_void_p
-            kernel32.GlobalAlloc.argtypes = [ctypes.wintypes.UINT, ctypes.c_size_t]
-            kernel32.GlobalLock.restype = ctypes.c_void_p
-            kernel32.GlobalLock.argtypes = [ctypes.c_void_p]
-            kernel32.GlobalUnlock.restype = ctypes.wintypes.BOOL
+            kernel32.GlobalAlloc.restype   = ctypes.c_void_p
+            kernel32.GlobalAlloc.argtypes  = [ctypes.wintypes.UINT, ctypes.c_size_t]
+            kernel32.GlobalLock.restype    = ctypes.c_void_p
+            kernel32.GlobalLock.argtypes   = [ctypes.c_void_p]
+            kernel32.GlobalUnlock.restype  = ctypes.wintypes.BOOL
             kernel32.GlobalUnlock.argtypes = [ctypes.c_void_p]
-            kernel32.GlobalFree.restype = ctypes.c_void_p
-            kernel32.GlobalFree.argtypes = [ctypes.c_void_p]
+            kernel32.GlobalFree.restype    = ctypes.c_void_p
+            kernel32.GlobalFree.argtypes   = [ctypes.c_void_p]
 
-            hGlobalMem = kernel32.GlobalAlloc(GMEM_MOVEABLE, len(dib_data))
-            if not hGlobalMem:
-                raise Exception("Failed to allocate global memory.")
+            user32.OpenClipboard.restype             = ctypes.wintypes.BOOL
+            user32.OpenClipboard.argtypes            = [ctypes.wintypes.HWND]
+            user32.EmptyClipboard.restype            = ctypes.wintypes.BOOL
+            user32.EmptyClipboard.argtypes           = []
+            user32.SetClipboardData.restype          = ctypes.c_void_p
+            user32.SetClipboardData.argtypes         = [ctypes.wintypes.UINT, ctypes.c_void_p]
+            user32.CloseClipboard.restype            = ctypes.wintypes.BOOL
+            user32.CloseClipboard.argtypes           = []
+            user32.RegisterClipboardFormatW.restype  = ctypes.wintypes.UINT
+            user32.RegisterClipboardFormatW.argtypes = [ctypes.wintypes.LPCWSTR]
 
-            lpGlobalMem = kernel32.GlobalLock(hGlobalMem)
-            if not lpGlobalMem:
-                kernel32.GlobalFree(hGlobalMem)
-                raise Exception("Failed to lock global memory.")
-                
-            try:
-                ctypes.memmove(lpGlobalMem, dib_data, len(dib_data))
-            finally:
-                kernel32.GlobalUnlock(hGlobalMem)
-                
+            CF_PNG = user32.RegisterClipboardFormatW("PNG")
+
+            def _alloc(data: bytes) -> int:
+                h = kernel32.GlobalAlloc(GMEM_MOVEABLE, len(data))
+                if not h:
+                    raise Exception("GlobalAlloc failed")
+                ptr = kernel32.GlobalLock(h)
+                if not ptr:
+                    kernel32.GlobalFree(h)
+                    raise Exception("GlobalLock failed")
+                try:
+                    ctypes.memmove(ptr, data, len(data))
+                finally:
+                    kernel32.GlobalUnlock(h)
+                return h
+
+            h_dibv5 = _alloc(dibv5_data)
+            h_dib   = _alloc(dib_data)
+            h_png   = _alloc(png_data)
+
             if not user32.OpenClipboard(0):
-                kernel32.GlobalFree(hGlobalMem)
+                for h in (h_dibv5, h_dib, h_png):
+                    kernel32.GlobalFree(h)
                 raise Exception("Failed to open clipboard.")
-                
+
             try:
                 user32.EmptyClipboard()
-                if not user32.SetClipboardData(CF_DIB, hGlobalMem):
-                    kernel32.GlobalFree(hGlobalMem)
-                    raise Exception("Failed to set clipboard data.")
+                # After a successful SetClipboardData the OS owns the handle;
+                # only free it if the call itself fails.
+                if not user32.SetClipboardData(CF_DIBV5, h_dibv5):
+                    kernel32.GlobalFree(h_dibv5)
+                if not user32.SetClipboardData(CF_DIB, h_dib):
+                    kernel32.GlobalFree(h_dib)
+                if CF_PNG and not user32.SetClipboardData(CF_PNG, h_png):
+                    kernel32.GlobalFree(h_png)
             finally:
                 user32.CloseClipboard()
                 
